@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task: list
+
+  init:
+    internal: true
+    silent: true
+    run: once
+    cmds:
+      - npm install -g hrvst-cli
+    status:
+      - command -v hrvst
+
+  login:
+    internal: true
+    silent: true
+    run: once
+    deps: [init]
+    cmds:
+      - hrvst login
+    status:
+      - hrvst users me > /dev/null
+
+  list:
+    desc: List entries from the beginning of this month
+    deps: [login]
+    silent: true
+    cmds:
+      - hrvst time-entries list --from {{.FROM}} --fields {{.FIELDS}}
+    vars:
+      FIELDS: id,spent_date,hours,task.name,notes
+      FROM:
+        sh: date +%Y-%m-01
+
+  total:
+    desc: Calculate total number of hours for this month
+    deps: [login]
+    silent: true
+    cmds:
+      - |
+        total=$(hrvst time-entries list --from {{.FROM}} --output json --fields hours | jq '[.[] | .hours] | add')
+        echo "You have worked in total ${total} hours."
+    vars:
+      FROM:
+        sh: date +%Y-%m-01

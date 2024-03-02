@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  SETUP_DIR: "{{.HOME}}/src/personal/github.com/setup"
+
+tasks:
+  default:
+    cmds:
+      - task: homebrew
+
+  init:homebrew:
+    silent: true
+    internal: true
+    platforms: [darwin]
+    cmds:
+      - curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash
+    status:
+      - command -v brew
+
+  homebrew:
+    silent: true
+    desc: Upgrade Homebrew packages
+    deps: [init:homebrew]
+    dir: "{{.SETUP_DIR}}"
+    platforms: [darwin]
+    cmds:
+      - git pull --rebase
+      - brew bundle install

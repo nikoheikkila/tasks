@@ -1,0 +1,5 @@
+version: "3"
+
+includes:
+  hours: ./tasks/hours.yml
+  upgrade: ./tasks/upgrade.yml
